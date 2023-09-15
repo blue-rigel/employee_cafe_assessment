@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id            String         @id @db.VarChar(9)
+  name          String
+  email_address String         @unique
+  phone_number  String         @unique
+  gender        String
+  cafe          EmployeeCafe[]
+}
+
+model Cafe {
+  id          String         @id @default(uuid())
+  name        String
+  description String
+  logo        String?
+  location    String
+  employees    EmployeeCafe[]
+
+  @@fulltext([location])
+}
+
+model EmployeeCafe {
+  employeeId String   @unique
+  cafeId     String
+  start_date DateTime @db.Date
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  cafe       Cafe     @relation(fields: [cafeId], references: [id])
+}
